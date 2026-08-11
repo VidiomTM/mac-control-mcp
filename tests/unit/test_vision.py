@@ -21,6 +21,7 @@ def test_capture_screen_subprocess_success(mocker):
     mocker.patch.dict(sys.modules, {"PIL": mock_img_module})
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -38,6 +39,7 @@ def test_capture_screen_subprocess_failure(mocker):
     mocker.patch("builtins.open", mocker.mock_open(read_data=b"data"))
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -58,6 +60,7 @@ def test_capture_screen_with_region(mocker):
     mocker.patch.dict(sys.modules, {"PIL": mock_img_module})
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -79,6 +82,7 @@ def test_capture_screen_with_window_id(mocker):
     mocker.patch.dict(sys.modules, {"PIL": mock_img_module})
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -100,6 +104,7 @@ def test_capture_screen_jpg_format(mocker):
     mocker.patch.dict(sys.modules, {"PIL": mock_img_module})
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -123,6 +128,7 @@ def test_capture_screen_with_scale(mocker):
     mock_scale = mocker.patch("mac_control_mcp.vision.capture._scale_image")
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -137,6 +143,7 @@ def test_capture_screen_no_pil_fallback(mocker):
     mocker.patch("builtins.open", mocker.mock_open(read_data=b"data"))
 
     import mac_control_mcp.vision.capture as cap
+
     mocker.patch.object(cap, "os")
     cap.os.unlink = mocker.MagicMock()
 
@@ -146,6 +153,3 @@ def test_capture_screen_no_pil_fallback(mocker):
         result = cap_mod.capture_screen()
         assert result["width"] is None
         assert result["height"] is None
-
-
-

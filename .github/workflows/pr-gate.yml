@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
       - name: Ruff format check
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
       - name: Ruff lint
@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
       - name: Pyright
@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
       - name: Build package
@@ -75,18 +75,16 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
+      - name: Install Python 3.12 via uv
+        run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev --python 3.12
       - name: Tests with coverage gate
-        run: uv run pytest --cov --cov-branch --cov-fail-under=90
+        run: uv run --python 3.12 pytest --cov --cov-branch --cov-fail-under=90
 
   mutation:
     name: Mutation Tests
@@ -97,27 +95,31 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
+      - name: Install Python 3.12 via uv
+        run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev --python 3.12
       - name: Get changed Python files
-        id: changed-files
-        uses: tj-actions/changed-files@v46
-        with:
-          files: |
-            src/**/*.py
-            tests/**/*.py
-          separator: ','
+        id: pyfiles
+        run: |
+          # changed-files action fails on self-hosted runners (mkdir /Users/runner)
+          # Use git diff + python file list instead
+          BASE="${GITHUB_BASE_REF:-main}"
+          CHANGED_PY=$(git diff --name-only "$BASE"...HEAD -- src/ tests/ | grep '\.py$' || true)
+          if [ -n "$CHANGED_PY" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
       - name: Run mutation tests on changed files
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: uv run mutmut run --paths-to-mutate ${{ steps.changed-files.outputs.all_changed_files }}
+        if: steps.pyfiles.outputs.changed == 'true'
+        run: |
+          FILES=$(git diff --name-only "${GITHUB_BASE_REF:-main}"...HEAD -- src/ tests/ | grep '\.py$' || true)
+          uv run --python 3.12 mutmut run --paths-to-mutate $FILES
 
   deadcode:
     name: Dead Code
@@ -127,7 +129,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
           enable-cache: true
       - name: Vulture dead code detection
@@ -156,11 +158,12 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Semgrep
-        uses: returntocorp/semgrep-action@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
         with:
-          config: p/default
-          generateSarif: "1"
+          enable-cache: true
+      - name: Semgrep (direct CLI, no container)
+        run: uvx --from 'semgrep==1.172.0' semgrep --config p/default --error src/
 
   required-checks:
     name: Required Checks (PR)

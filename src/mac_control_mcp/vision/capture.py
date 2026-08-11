@@ -47,7 +47,7 @@ def capture_screen(
             raise RuntimeError(f"screencapture failed: {result.stderr.decode()}")
 
         if scale != 1.0:
-            _scale_image(tmp_path, scale, format)
+            _scale_image(tmp_path, scale)
 
         with open(tmp_path, "rb") as f:
             data = f.read()
@@ -75,7 +75,7 @@ def capture_screen(
     }
 
 
-def _scale_image(path: str, scale: float, fmt: str) -> None:
+def _scale_image(path: str, scale: float) -> None:
     try:
         from PIL import Image
 
@@ -86,35 +86,3 @@ def _scale_image(path: str, scale: float, fmt: str) -> None:
         img.save(path)
     except ImportError:
         pass  # PIL optional; skip scaling
-
-
-def list_windows() -> list[dict[str, Any]]:
-    """List visible windows with IDs for targeted capture."""
-    try:
-        from Quartz import (
-            CGWindowListCopyWindowInfo,
-            kCGNullWindowID,
-            kCGWindowListOptionOnScreenOnly,
-        )
-
-        windows = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID)
-        result = []
-        for w in windows:
-            entry: dict[str, Any] = {
-                "id": w.get("kCGWindowNumber"),
-                "owner": w.get("kCGWindowOwnerName"),
-                "name": w.get("kCGWindowName"),
-                "layer": w.get("kCGWindowLayer"),
-            }
-            bounds = w.get("kCGWindowBounds")
-            if bounds:
-                entry["bounds"] = {
-                    "x": bounds.get("X"),
-                    "y": bounds.get("Y"),
-                    "w": bounds.get("Width"),
-                    "h": bounds.get("Height"),
-                }
-            result.append(entry)
-        return [r for r in result if r.get("layer", 999) <= 0 or r.get("owner")]
-    except ImportError:
-        return []

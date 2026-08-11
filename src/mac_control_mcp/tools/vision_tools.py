@@ -35,13 +35,6 @@ def register_vision_tools(mcp: FastMCP) -> None:
         )
 
     @mcp.tool()
-    def screen_list_windows() -> str:
-        """List visible windows with IDs, owners, and bounds for targeted capture."""
-        from mac_control_mcp.vision.capture import list_windows
-
-        return json.dumps(list_windows())
-
-    @mcp.tool()
     def screen_ocr(
         region: list[int] | None = None,
         image_b64: str | None = None,
@@ -49,7 +42,11 @@ def register_vision_tools(mcp: FastMCP) -> None:
         """
         OCR text from screen region or provided base64 image.
         Returns: {text: full_text, observations: [{text, confidence, bbox}], count}
-        Works as fallback for Electron/game apps where AX tree is unavailable.
+
+        This is the complement to cua-driver for apps whose AX surface is blank
+        (Electron, canvas, games, Catalyst): capture + OCR produces text and
+        word bounding boxes that can be turned into click targets outside this
+        server (e.g. feed the center of an OCR bbox to cua-driver's px click).
         """
         from mac_control_mcp.vision.ocr import ocr_image_b64, ocr_screen_region
 
@@ -58,25 +55,4 @@ def register_vision_tools(mcp: FastMCP) -> None:
         else:
             region_tuple = tuple(region) if region else None
             result = ocr_screen_region(region=region_tuple)
-        return json.dumps(result)
-
-    @mcp.tool()
-    def screen_wait_for_change(
-        region: list[int] | None = None,
-        timeout_s: float = 10.0,
-        poll_interval: float = 0.5,
-    ) -> str:
-        """
-        Poll screen region until a visual change is detected.
-        Returns: {changed: bool, elapsed_s, screenshot: {data, format, ...}}
-        Useful after triggering an action to wait for UI to update.
-        """
-        from mac_control_mcp.vision.diff import wait_for_change
-
-        region_tuple = tuple(region) if region else None
-        result = wait_for_change(
-            region=region_tuple,
-            timeout_s=timeout_s,
-            poll_interval=poll_interval,
-        )
         return json.dumps(result)

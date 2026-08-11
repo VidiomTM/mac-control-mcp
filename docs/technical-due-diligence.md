@@ -32,7 +32,7 @@ MCP server exposing typed tools through the Model Context Protocol. Modular desi
 
 ## Tech Stack
 
-Python 3.x with MCP SDK. Runtime deps: pyobjc (5 Apple framework bindings), mcp, rapidfuzz, pyyaml — 7 total + 1 optional (pillow for vision scaling). Testing: pytest + pytest-cov, mutmut. CI/CD: pr-gate, merge-gate, pr-agent, SonarCloud.
+Python 3.x with MCP SDK. Runtime deps: pyobjc (5 Apple framework bindings), mcp, rapidfuzz, pyyaml — 7 total + 1 optional (pillow for vision scaling). Testing: pytest + pytest-cov, mutmut. CI/CD: pr-gate, merge-gate, OpenCodeReview, local SonarQube.
 
 ## Code Quality
 
@@ -48,7 +48,7 @@ Single-user desktop automation server. Each tool call is fast (sub-second for AX
 
 ## Operations & DevOps
 
-Full CI/CD with pr-gate and merge-gate workflows on self-hosted macOS arm64 runner. SonarCloud quality check. PR-Agent fallback. Challenge: macOS-only tests require macOS CI infrastructure; currently solved via self-hosted runner.
+Full CI/CD with pr-gate and merge-gate workflows on self-hosted macOS arm64 runner. Local SonarQube quality check (http://127.0.0.1:9001). OpenCodeReview automated review. Challenge: macOS-only tests require macOS CI infrastructure; currently solved via self-hosted runner.
 
 ## Dependencies & Third-Party Risk
 

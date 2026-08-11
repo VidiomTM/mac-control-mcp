@@ -11,11 +11,10 @@ readme = "README.md"
 license = { text = "MIT" }
 keywords = ["mcp", "macos", "automation", "accessibility", "applescript"]
 dependencies = [
-    "mcp>=1.2",
+    "mcp>=1.28.1,<2",
     "pyobjc-core>=10.0",
     "pyobjc-framework-Cocoa>=10.0",
     "pyobjc-framework-ApplicationServices>=10.0",
-    "pyobjc-framework-Quartz>=10.0",
     "pyobjc-framework-Vision>=10.0",
     "rapidfuzz>=3.0",
     "pyyaml>=6.0",
@@ -31,6 +30,7 @@ dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "pytest-mock>=3.12",
+    "mutmut>=2.4",
     "types-pyyaml",
 ]
 
@@ -81,8 +81,6 @@ omit = [
     "src/mac_control_mcp/vision/ocr.py",
     "src/mac_control_mcp/vision/capture.py",
     "src/mac_control_mcp/ax/snapshot.py",
-    "src/mac_control_mcp/ax/actions.py",
-    "src/mac_control_mcp/ax/system_ui.py",
 ]
 
 [tool.coverage.report]
