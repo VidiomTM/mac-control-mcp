@@ -179,7 +179,6 @@ jobs:
           command -v sonar-scanner >/dev/null || { echo "sonar-scanner is not installed on this runner"; exit 1; }
           curl -fsS -H "Authorization: Bearer $SONAR_TOKEN" 'http://127.0.0.1:9001/api/components/show?component=mac-control-mcp' >/dev/null || { echo "local SonarQube server unreachable or auth failed"; exit 1; }
           sonar-scanner \
-            -Dsonar.token="$SONAR_TOKEN" \
             -Dsonar.host.url=http://127.0.0.1:9001
 
   required-checks:

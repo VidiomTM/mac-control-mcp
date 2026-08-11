@@ -13,7 +13,15 @@ from mac_control_mcp.tools.vision_tools import register_vision_tools
 def create_server() -> FastMCP:
     mcp = FastMCP(
         "mac-control",
-        instructions="macOS gap-filler for cua-driver: raw AX snapshot (Catalyst/non-AX apps), screen capture + on-device OCR, AppleScript/JXA + Apple apps, Spotlight mdfind. All input is READ-ONLY — does not click, type, or post keys. Use cua-driver for actions.",
+        instructions=(
+            "macOS gap-filler for cua-driver: raw AX snapshot (Catalyst/non-AX apps), "
+            "screen capture + on-device OCR, Spotlight/mdfind, and AppleScript/JXA + "
+            "Apple apps (Mail, Calendar, Reminders, Notes, Messages, Contacts, Finder). "
+            "AX snapshots, screen capture, OCR, and Spotlight are READ-ONLY. "
+            "osa_exec and the Apple app tools can perform actions/writes — treat them as "
+            "authoritative input, not previews. For reliable click/type/key automation use "
+            "cua-driver instead."
+        ),
     )
 
     register_ax_tools(mcp)

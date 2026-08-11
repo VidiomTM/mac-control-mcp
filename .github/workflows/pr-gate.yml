@@ -82,9 +82,9 @@ jobs:
       - name: Install Python 3.12 via uv
         run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --python 3.12
       - name: Tests with coverage gate
-        run: uv run pytest --cov --cov-branch --cov-fail-under=90
+        run: uv run --python 3.12 pytest --cov --cov-branch --cov-fail-under=90
 
   mutation:
     name: Mutation Tests
@@ -102,26 +102,24 @@ jobs:
       - name: Install Python 3.12 via uv
         run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --python 3.12
       - name: Get changed Python files
         id: pyfiles
         run: |
-          git fetch origin main --depth=1 || true
           # changed-files action fails on self-hosted runners (mkdir /Users/runner)
           # Use git diff + python file list instead
-          CHANGED_PY=$(git diff --name-only origin/main...HEAD -- src/ tests/ 2>/dev/null | grep '\.py$' || true)
+          BASE="${GITHUB_BASE_REF:-main}"
+          CHANGED_PY=$(git diff --name-only "$BASE"...HEAD -- src/ tests/ | grep '\.py$' || true)
           if [ -n "$CHANGED_PY" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "files=$CHANGED_PY" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
       - name: Run mutation tests on changed files
         if: steps.pyfiles.outputs.changed == 'true'
         run: |
-          git fetch origin main --depth=1 || true
-          FILES=$(git diff --name-only origin/main...HEAD -- src/ tests/ 2>/dev/null | grep '\.py$')
-          uv run mutmut run --paths-to-mutate $FILES
+          FILES=$(git diff --name-only "${GITHUB_BASE_REF:-main}"...HEAD -- src/ tests/ | grep '\.py$' || true)
+          uv run --python 3.12 mutmut run --paths-to-mutate $FILES
 
   deadcode:
     name: Dead Code
@@ -165,7 +163,7 @@ jobs:
         with:
           enable-cache: true
       - name: Semgrep (direct CLI, no container)
-        run: uvx semgrep --config p/default --error src/
+        run: uvx --from 'semgrep==1.172.0' semgrep --config p/default --error src/
 
   required-checks:
     name: Required Checks (PR)

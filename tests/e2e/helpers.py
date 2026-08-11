@@ -36,7 +36,11 @@ def mcp_session(timeout: float = 15.0) -> Generator[tuple, None, None]:
             if not line:
                 time.sleep(0.05)
                 continue
-            obj = json.loads(line.decode())
+            text = line.decode().strip()
+            if not text:
+                # Server may emit blank lines between JSON-RPC messages
+                continue
+            obj = json.loads(text)
             if obj.get("id") == req_id:
                 return obj
         raise TimeoutError(f"No response for id={req_id}")

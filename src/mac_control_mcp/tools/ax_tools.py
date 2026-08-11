@@ -28,7 +28,7 @@ def register_ax_tools(mcp: FastMCP) -> None:
 
         Returns pruned JSON with element roles, labels, values, and screen
         coords. Coordinates can be fed to cua-driver clicks (px rung) — this
-        server does NOT click, type, or send keys.
+        tool never posts input and never steals focus.
         """
         from mac_control_mcp.ax.snapshot import snapshot_app
         from mac_control_mcp.truncate import prune_tree, trim_to_budget
