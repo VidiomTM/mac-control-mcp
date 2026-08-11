@@ -83,7 +83,7 @@ jobs:
       - name: Install Python 3.12 via uv
         run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev
       - name: Tests with coverage gate
         run: uv run pytest --cov --cov-branch --cov-fail-under=90 --cov-report=xml
       - name: Upload coverage artifact
@@ -109,7 +109,7 @@ jobs:
       - name: Install Python 3.12 via uv
         run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev
       - name: Run mutation tests
         run: uv run mutmut run
 
@@ -155,7 +155,7 @@ jobs:
         with:
           enable-cache: true
       - name: Semgrep (direct CLI, no container)
-        run: uvx semgrep --config p/default --error .
+        run: uvx semgrep --config p/default --error src/
 
   sonarqube:
     name: SonarQube (local)

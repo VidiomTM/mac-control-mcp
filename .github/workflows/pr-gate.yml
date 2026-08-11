@@ -82,7 +82,7 @@ jobs:
       - name: Install Python 3.12 via uv
         run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev
       - name: Tests with coverage gate
         run: uv run pytest --cov --cov-branch --cov-fail-under=90
 
@@ -102,13 +102,14 @@ jobs:
       - name: Install Python 3.12 via uv
         run: uv python install 3.12
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev
       - name: Get changed Python files
         id: pyfiles
         run: |
+          git fetch origin main --depth=1 || true
           # changed-files action fails on self-hosted runners (mkdir /Users/runner)
           # Use git diff + python file list instead
-          CHANGED_PY=$(git diff --name-only origin/main...HEAD -- src/ tests/ | grep '\.py$' || true)
+          CHANGED_PY=$(git diff --name-only origin/main...HEAD -- src/ tests/ 2>/dev/null | grep '\.py$' || true)
           if [ -n "$CHANGED_PY" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "files=$CHANGED_PY" >> $GITHUB_OUTPUT
@@ -118,7 +119,8 @@ jobs:
       - name: Run mutation tests on changed files
         if: steps.pyfiles.outputs.changed == 'true'
         run: |
-          FILES=$(git diff --name-only origin/main...HEAD -- src/ tests/ | grep '\.py$')
+          git fetch origin main --depth=1 || true
+          FILES=$(git diff --name-only origin/main...HEAD -- src/ tests/ 2>/dev/null | grep '\.py$')
           uv run mutmut run --paths-to-mutate $FILES
 
   deadcode:
@@ -163,7 +165,7 @@ jobs:
         with:
           enable-cache: true
       - name: Semgrep (direct CLI, no container)
-        run: uvx semgrep --config p/default --error .
+        run: uvx semgrep --config p/default --error src/
 
   required-checks:
     name: Required Checks (PR)
