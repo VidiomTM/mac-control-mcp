@@ -23,13 +23,13 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch base branch
-        run: git fetch origin ${{ github.base_ref }}
+        run: git fetch origin "${GITHUB_BASE_REF:-main}"
 
       - name: Run OpenCodeReview
         id: ocr
         run: |
           OUTPUT=$(ocr review \
-            --from "origin/${{ github.base_ref }}" \
+            --from "origin/${GITHUB_BASE_REF:-main}" \
             --to HEAD \
             --format json \
             --audience agent \

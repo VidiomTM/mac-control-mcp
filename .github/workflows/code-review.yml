@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Fetch base branch
-        run: git fetch origin ${{ github.base_ref }}
+        run: git fetch origin "${GITHUB_BASE_REF:-main}"
       - name: Run OpenCodeReview
         id: ocr
         shell: bash {0}
@@ -29,7 +29,8 @@ jobs:
           export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
           export HOME=/Users/jonathangadeaharder
           WORK_DIR="${{ github.workspace }}"
-          /usr/local/bin/ocr review --from "origin/${{ github.base_ref }}" --to HEAD --format json --audience agent --repo "$PWD" > "$WORK_DIR/ocr-output.json" 2>"$WORK_DIR/ocr-stderr.log"
+          BASE="${GITHUB_BASE_REF:-main}"
+          /usr/local/bin/ocr review --from "origin/$BASE" --to HEAD --format json --audience agent --repo "$PWD" > "$WORK_DIR/ocr-output.json" 2>"$WORK_DIR/ocr-stderr.log"
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
           if [ $EXIT_CODE -ne 0 ]; then
