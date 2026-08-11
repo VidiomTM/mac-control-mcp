@@ -87,7 +87,13 @@ jobs:
       - name: Install dependencies
         run: uv sync
       - name: Tests with coverage gate
-        run: uv run pytest --cov --cov-branch --cov-fail-under=90
+        run: uv run pytest --cov --cov-branch --cov-fail-under=90 --cov-report=xml
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          if-no-files-found: error
 
   mutation:
     name: Mutation Tests
@@ -157,32 +163,26 @@ jobs:
   sonarqube:
     name: SonarQube (local)
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
+    needs: [unit]
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.12"
-      - name: Install uv
-        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
-        with:
-          enable-cache: true
-      - name: Install dependencies
-        run: uv sync
-      - name: Generate coverage report
-        run: uv run pytest --cov --cov-branch --cov-report=xml
+          name: coverage
       - name: SonarQube Scan (local server)
         shell: bash
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           command -v sonar-scanner >/dev/null || { echo "sonar-scanner is not installed on this runner"; exit 1; }
-          curl -fsS http://127.0.0.1:9001/api/components/show?component=mac-control-mcp >/dev/null || { echo "local SonarQube server unreachable"; exit 1; }
+          curl -fsS -H "Authorization: Bearer $SONAR_TOKEN" 'http://127.0.0.1:9001/api/components/show?component=mac-control-mcp' >/dev/null || { echo "local SonarQube server unreachable or auth failed"; exit 1; }
           sonar-scanner \
+            -Dsonar.token="$SONAR_TOKEN" \
             -Dsonar.host.url=http://127.0.0.1:9001
 
   required-checks:
