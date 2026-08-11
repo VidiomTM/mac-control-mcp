@@ -11,7 +11,7 @@ readme = "README.md"
 license = { text = "MIT" }
 keywords = ["mcp", "macos", "automation", "accessibility", "applescript"]
 dependencies = [
-    "mcp>=1.2",
+    "mcp>=1.28.1,<2",
     "pyobjc-core>=10.0",
     "pyobjc-framework-Cocoa>=10.0",
     "pyobjc-framework-ApplicationServices>=10.0",
