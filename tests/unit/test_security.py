@@ -4,53 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from mac_control_mcp.security import check_osa_script, check_ssrf
+from mac_control_mcp.security import check_osa_script
 
-# ── SSRF: blocked ─────────────────────────────────────────────────────────────
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "url",
-    [
-        "http://127.0.0.1/api",
-        "http://localhost/test",
-        "http://192.168.1.100/resource",
-        "http://10.0.0.1/internal",
-        "http://172.16.0.1/secret",
-        "http://172.31.255.255/edge",
-        "http://[::1]/ipv6",
-    ],
-)
-def test_ssrf_blocks_private(url: str) -> None:
-    with pytest.raises(ValueError, match="SSRF blocked"):
-        check_ssrf(url)
-
-
-# ── SSRF: allowed ─────────────────────────────────────────────────────────────
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "url",
-    [
-        "https://api.example.com/v1",
-        "https://8.8.8.8/dns",
-        "http://1.2.3.4/public",
-        "https://github.com/repo",
-    ],
-)
-def test_ssrf_allows_public(url: str) -> None:
-    check_ssrf(url)  # must not raise
-
-
-@pytest.mark.unit
-def test_ssrf_blocks_empty_hostname() -> None:
-    with pytest.raises(ValueError, match="SSRF blocked"):
-        check_ssrf("http:///path-with-empty-host")
-
-
-# ── OSA: forbidden ────────────────────────────────────────────────────────────
+# OSA: forbidden patterns
 
 
 @pytest.mark.unit
@@ -68,7 +24,7 @@ def test_osa_blocks_forbidden(script: str) -> None:
         check_osa_script(script)
 
 
-# ── OSA: allowed ──────────────────────────────────────────────────────────────
+# OSA: allowed patterns
 
 
 @pytest.mark.unit

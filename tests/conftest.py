@@ -9,9 +9,12 @@ import pytest
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
-    if "integration" not in [mark.name for mark in item.iter_markers()] and "e2e" not in [mark.name for mark in item.iter_markers()]:
+    if "integration" not in [mark.name for mark in item.iter_markers()] and "e2e" not in [
+        mark.name for mark in item.iter_markers()
+    ]:
         try:
             from pytest_socket import disable_socket
+
             disable_socket()
         except ImportError:
             pass

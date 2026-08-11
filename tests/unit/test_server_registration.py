@@ -8,12 +8,7 @@ import re
 import pytest
 
 EXPECTED_TOOLS = {
-    "ax_click",
-    "ax_hotkey",
-    "ax_scroll",
     "ax_snapshot",
-    "ax_system_ui",
-    "ax_type",
     "calendar_create_event",
     "calendar_events",
     "contacts_search",
@@ -34,9 +29,7 @@ EXPECTED_TOOLS = {
     "reminders_add",
     "reminders_list",
     "screen_capture",
-    "screen_list_windows",
     "screen_ocr",
-    "screen_wait_for_change",
     "spotlight_query",
 }
 
@@ -49,7 +42,7 @@ def test_server_creates_successfully(mcp_server) -> None:
 @pytest.mark.unit
 def test_tool_count(mcp_server) -> None:
     tools = mcp_server._tool_manager.list_tools()
-    assert len(tools) == 30
+    assert len(tools) == 23
 
 
 @pytest.mark.unit

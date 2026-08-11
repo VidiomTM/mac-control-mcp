@@ -16,6 +16,7 @@ def test_pytest_collection_modifyitems_skips_non_darwin(mocker):
 
     mocker.patch("sys.platform", "linux")
     from tests.conftest import pytest_collection_modifyitems
+
     pytest_collection_modifyitems(items)
 
     for item in items:
@@ -37,6 +38,7 @@ def test_pytest_collection_modifyitems_skips_live_tests_0(mocker):
     mocker.patch("sys.platform", "darwin")
     mocker.patch.dict("os.environ", {"LIVE_TESTS": "0"})
     from tests.conftest import pytest_collection_modifyitems
+
     pytest_collection_modifyitems(items)
 
     for item in items:

@@ -154,8 +154,8 @@ jobs:
           config: p/default
           generateSarif: "1"
 
-  sonarcloud:
-    name: SonarCloud
+  sonarqube:
+    name: SonarQube (local)
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
     timeout-minutes: 25
@@ -163,11 +163,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync
+      - name: Generate coverage report
+        run: uv run pytest --cov --cov-branch --cov-report=xml
+      - name: SonarQube Scan (local server)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.host.url=http://127.0.0.1:9001 \
+            -Dsonar.login="$SONAR_TOKEN"
 
   required-checks:
     name: Required Checks (Merge)
@@ -184,7 +198,7 @@ jobs:
       - deadcode
       - deps
       - semgrep
-      - sonarcloud
+      - sonarqube
     steps:
       - name: Verify all jobs passed
         run: |
@@ -197,7 +211,7 @@ jobs:
              [ "${{ needs.deadcode.result }}" != "success" ] || \
              [ "${{ needs.deps.result }}" != "success" ] || \
              [ "${{ needs.semgrep.result }}" != "success" ] || \
-             [ "${{ needs.sonarcloud.result }}" != "success" ]; then
+             [ "${{ needs.sonarqube.result }}" != "success" ]; then
             echo "One or more merge gate jobs failed."
             exit 1
           fi

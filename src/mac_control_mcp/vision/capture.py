@@ -86,35 +86,3 @@ def _scale_image(path: str, scale: float, fmt: str) -> None:
         img.save(path)
     except ImportError:
         pass  # PIL optional; skip scaling
-
-
-def list_windows() -> list[dict[str, Any]]:
-    """List visible windows with IDs for targeted capture."""
-    try:
-        from Quartz import (
-            CGWindowListCopyWindowInfo,
-            kCGNullWindowID,
-            kCGWindowListOptionOnScreenOnly,
-        )
-
-        windows = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID)
-        result = []
-        for w in windows:
-            entry: dict[str, Any] = {
-                "id": w.get("kCGWindowNumber"),
-                "owner": w.get("kCGWindowOwnerName"),
-                "name": w.get("kCGWindowName"),
-                "layer": w.get("kCGWindowLayer"),
-            }
-            bounds = w.get("kCGWindowBounds")
-            if bounds:
-                entry["bounds"] = {
-                    "x": bounds.get("X"),
-                    "y": bounds.get("Y"),
-                    "w": bounds.get("Width"),
-                    "h": bounds.get("Height"),
-                }
-            result.append(entry)
-        return [r for r in result if r.get("layer", 999) <= 0 or r.get("owner")]
-    except ImportError:
-        return []
