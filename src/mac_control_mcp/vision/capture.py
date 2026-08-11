@@ -47,7 +47,7 @@ def capture_screen(
             raise RuntimeError(f"screencapture failed: {result.stderr.decode()}")
 
         if scale != 1.0:
-            _scale_image(tmp_path, scale, format)
+            _scale_image(tmp_path, scale)
 
         with open(tmp_path, "rb") as f:
             data = f.read()
@@ -75,7 +75,7 @@ def capture_screen(
     }
 
 
-def _scale_image(path: str, scale: float, fmt: str) -> None:
+def _scale_image(path: str, scale: float) -> None:
     try:
         from PIL import Image
 
