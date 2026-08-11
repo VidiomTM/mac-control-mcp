@@ -155,7 +155,7 @@ jobs:
         with:
           enable-cache: true
       - name: Semgrep (direct CLI, no container)
-        run: uvx semgrep --config p/default --error src/
+        run: uvx --from 'semgrep==1.172.0' semgrep --config p/default --error src/
 
   sonarqube:
     name: SonarQube (local)

@@ -27,7 +27,7 @@ def register_ax_tools(mcp: FastMCP) -> None:
         system-wide tree by app name instead.
 
         Returns pruned JSON with element roles, labels, values, and screen
-        coords. Coordinates can be fed to cua-driver clicks (px rung) — this
+        coords. Coordinates can be fed to cua-driver clicks (in pixels) — this
         tool never posts input and never steals focus.
         """
         from mac_control_mcp.ax.snapshot import snapshot_app
