@@ -118,7 +118,6 @@ These used to live here but were removed because cua-driver does them better:
 - `osa_exec` blocks destructive patterns: `rm -rf /`, `sudo`, `dd if=` in shell scripts
 - KB scripts (`osa_run`) are pre-vetted; only `osa_exec` allows arbitrary scripts
 - All subprocess calls use list-form args — no `shell=True` injection surface
-- Clipboard-based typing avoids keycode mapping issues for unicode *(note: input tools were removed — this line is historical)*
 
 ## Adding knowledge base scripts
 
