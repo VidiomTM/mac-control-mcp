@@ -46,8 +46,11 @@ def mcp_session(timeout: float = 15.0) -> Generator[tuple, None, None]:
                 # Non-JSON noise on stdout (e.g. tool stderr routing,
                 # subprocess output); not a protocol message.
                 continue
-            if obj.get("id") == req_id:
-                return obj
+            if not isinstance(obj, dict) or obj.get("id") != req_id:
+                # JSON but not our JSON-RPC response (array, other id, or a
+                # notification); keep reading.
+                continue
+            return obj
         raise TimeoutError(f"No response for id={req_id}")
 
     try:

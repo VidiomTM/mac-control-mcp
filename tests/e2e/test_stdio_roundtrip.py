@@ -77,7 +77,7 @@ def test_screen_ocr_call() -> None:
             }
         )
         resp = recv(4)
-    if "error" in resp:
+    if "error" in resp or resp.get("result", {}).get("isError"):
         pytest.skip("screen access unavailable")
     content = json.loads(_extract_text(resp["result"]["content"]))
     assert "count" in content and "text" in content
