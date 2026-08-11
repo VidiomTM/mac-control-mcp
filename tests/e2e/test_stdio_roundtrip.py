@@ -77,8 +77,10 @@ def test_screen_ocr_call() -> None:
             }
         )
         resp = recv(4)
-    # May fail on non-macOS or no screen-access; that's expected
-    assert "result" in resp or "error" in resp, f"Unexpected response: {resp}"
+    if "error" in resp:
+        pytest.skip("screen access unavailable")
+    content = json.loads(_extract_text(resp["result"]["content"]))
+    assert "count" in content and "text" in content
 
 
 @pytest.mark.e2e
