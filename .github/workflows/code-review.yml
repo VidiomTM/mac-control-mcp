@@ -13,6 +13,7 @@ jobs:
   ocr-review:
     name: OpenCodeReview
     runs-on: [self-hosted, macOS, ARM64]
+    timeout-minutes: 15
     env:
       HOME: /Users/jonathangadeaharder
     steps:
@@ -30,7 +31,7 @@ jobs:
           export HOME=/Users/jonathangadeaharder
           WORK_DIR="${{ github.workspace }}"
           BASE="${GITHUB_BASE_REF:-main}"
-          /usr/local/bin/ocr review --from "origin/$BASE" --to HEAD --format json --audience agent --repo "$PWD" > "$WORK_DIR/ocr-output.json" 2>"$WORK_DIR/ocr-stderr.log"
+          /usr/local/bin/ocr review --from "origin/$BASE" --to HEAD --format json --audience agent --repo "$PWD" --timeout 5 --max-tokens-budget 50000 > "$WORK_DIR/ocr-output.json" 2>"$WORK_DIR/ocr-stderr.log"
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
           if [ $EXIT_CODE -ne 0 ]; then
