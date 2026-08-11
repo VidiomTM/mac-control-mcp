@@ -17,6 +17,7 @@ jobs:
   ocr-review:
     name: OpenCodeReview
     runs-on: [self-hosted, macOS, ARM64]
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +29,7 @@ jobs:
       - name: Run OpenCodeReview
         id: ocr
         run: |
+          set +e
           OUTPUT=$(ocr review \
             --from "origin/${GITHUB_BASE_REF:-main}" \
             --to HEAD \
@@ -36,7 +38,8 @@ jobs:
             --repo "$PWD" \
             --timeout 5 \
             --max-tokens-budget 50000 \
-            2>/dev/null)
+            2>/tmp/ocr-error.log) || { echo "::error::OpenCodeReview failed"; cat /tmp/ocr-error.log; exit 1; }
+          set -e
 
           echo "$OUTPUT" > /tmp/ocr-output.json
           COMMENTS=$(echo "$OUTPUT" | jq '.summary.comments')
