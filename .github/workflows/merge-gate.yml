@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  RUNNER_TOOL_CACHE: /Users/jonathangadeaharder/actions-runner/_tool
+
 concurrency:
   group: merge-gate-${{ github.ref }}
   cancel-in-progress: false
